@@ -16,9 +16,10 @@ if __name__ == '__main__':
 	hmc = MagnetometerHMC5883L()
 	itg = GyroscopeITG3200()
 
-	while True: 
-		for sensor in (adxl, hmc, itg):
-			data_gen(sensor)
+	try: 
+		while True: 
+			for sensor in (adxl, hmc, itg):
+				data_gen(sensor)
 	except KeyboardInterrupt:
 		print("Exited because keyboard")
 
