@@ -10,7 +10,7 @@ def data_gen(sensor): #, calib):
 	# x, y, z = calib.apply(x, y, z)
 	print(f'{sensor.name}: X: {x}, Y: {y}, Z: {z} \n')
 	time.sleep(0.1)
-   
+
 if __name__ == '__main__':
 	adxl = ADXL345Sensor()
 	hmc = MagnetometerHMC5883L()
