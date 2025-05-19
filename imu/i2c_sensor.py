@@ -9,21 +9,23 @@ class I2CSensor:
     self.bus = smbus2.SMBus(bus_id)
     self.name = name
     self.offsets = {'x': 0, 'y': 0, 'z': 0}
-  
-  def read_word(self, reg):
-    low = self.bus.read_byte_data(self.address, reg)
-    high = self.bus.read_byte_data(self.address, reg+1)
+
+  def _combine_bytes(self, low, high):
     value = (high << 8) | low
-    if value >= 0x8000:
-      return val - 0x10000
-    else:
-      return value
+    return value - 65536 if value & 0x8000 else value
+
+  def read_raw_data(self, address, reg):
+    data = self.bus.read_i2c_block_data(self.address, reg, 6)
+    x = self._combine_bytes(data[0], data[1])
+    y = self._combine_bytes(data[2], data[3])
+    z = self._combine_bytes(data[4], data[5])
+    return x, y, z
 
   def calibrate(self, sameples=100):
     print(f'Calibrating {self.name}... Hold Still.')
     x_vals, y_vals, z_vals = [], [], []
     for _ in range(samples):
-      x, y, z = self.read()
+      x, y, z = self.read_raw_data()
       x_vals.append(x)
       y_vals.append(y)
       z_vals.append(z)
@@ -35,12 +37,5 @@ class I2CSensor:
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
 
-  def _combine_bytes(self, low, high):
-    value = (high << 8) | low
-    return value - 65536 if value & 0x8000 else value
-
   def apply_offsets(self, x, y, z):
     return x-self.offsets['x'], y-self.offsets['y'], z-self.offsets['z']
-
-  def read(self):
-    return (0, 0, 0)
