@@ -6,7 +6,7 @@ import time
 class I2CSensor:
   def __init__(self, bus=1, address=None, name='generic'):
     self.address = address
-    self.bus = smbus2.SMBus(bus_id)
+    self.bus = smbus2.SMBus(bus)
     self.name = name
     self.offsets = {'x': 0, 'y': 0, 'z': 0}
 
