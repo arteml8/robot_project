@@ -4,13 +4,15 @@ import smbus2
 import time
 
 class I2CSensor:
-  def __init__(self, bus=1, address=None, name='generic'):
+  def __init__(self, bus=1, address=None, name='generic', msb_first=False):
     self.address = address
     self.bus = smbus2.SMBus(bus)
     self.name = name
+    self.msb_first = msb_first
     self.offsets = {'x': 0, 'y': 0, 'z': 0}
 
-  def _combine_bytes(self, low, high):
+  def _combine_bytes(self, byte1, byte2):
+    high, low = (byte1, byte2) if self.msb_first else (byte2, byte1)
     value = (high << 8) | low
     return value - 65536 if value & 0x8000 else value
 
