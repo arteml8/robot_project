@@ -40,8 +40,8 @@ class I2CSensor:
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
 
-  def read_scaled(self, reg):
-    x,y,z = self.read_raw_data(reg)
+  def read_scaled(self):
+    x,y,z = self.read_raw()
     return x / self.lsb_scale, y / self.lsb_scale, z / self.lsb_scale
 
   def apply_offsets(self, x, y, z):
