@@ -2,7 +2,7 @@ from i2c_sensor import I2CSensor
 
 class GyroscopeITG3200(I2CSensor):
     def __init__(self, bus_id=1, address=0x68):
-        super().__init__(bus_id, address, name = 'ITG3200')
+        super().__init__(bus_id, address, name = 'ITG3200', msb_first=True)
         self._initialize()
 
     def _initialize(self):

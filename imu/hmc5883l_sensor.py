@@ -3,7 +3,7 @@ from i2c_sensor import I2CSensor
 
 class MagnetometerHMC5883L(I2CSensor):
   def __init__(self, bus_id=1, address=0x1e):
-    super().__init__(bus_id, address, name = "HMC5883L")
+    super().__init__(bus_id, address, name = "HMC5883L", msb_first=True)
     self._initialize()
 
   def _initialize(self):
