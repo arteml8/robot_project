@@ -6,9 +6,9 @@ from plotter import LivePlot2D
 import time
 
 def data_gen(sensor): #, calib):
-	x, y, z = sensor.read_raw()
+	x, y, z = sensor.read_scaled()
 	# x, y, z = calib.apply(x, y, z)
-	print(f'{sensor.name}: X: {x}, Y: {y}, Z: {z} \n')
+	print(f'{sensor.name}: X: {x}, Y: {y}, Z: {z}')
 	time.sleep(0.1)
 
 if __name__ == '__main__':
