@@ -2,9 +2,9 @@ from i2c_sensor import I2CSensor
 
 
 class ADXL345Sensor(I2CSensor):
-  def __init__(self, bus_id=1, address=0x53, calibration=None):
+  def __init__(self, bus_id=1, address=0x53):
     # Call the I2CSensor base constructor
-    super().__init__(bus_id, address, calibration)
+    super().__init__(bus_id, address, name = "ADXL345")
     self._initialize()
 
   def _initialize(self):
