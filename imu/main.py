@@ -12,17 +12,16 @@ def data_gen(sensor): #, calib):
 	time.sleep(0.1)
    
 if __name__ == '__main__':
-  adxl = ADXL345Sensor()
-  hmc = MagnetometerHMC5883L()
-  itg = GyroscopeITG3200()
+	adxl = ADXL345Sensor()
+	hmc = MagnetometerHMC5883L()
+	itg = GyroscopeITG3200()
 
-  while True: 
-  	for sensor in (adxl, hmc, itg):
-  		data_gen(sensor)
-  except KeyboardInterrupt:
-  	print("Exited because keyboard")
+	while True: 
+		for sensor in (adxl, hmc, itg):
+			data_gen(sensor)
+	except KeyboardInterrupt:
+		print("Exited because keyboard")
 
-  
   # calib = Calibration(offset=(0,0,0), scale=(1,1,1))
   # plot = LivePlot2D()
   # plot.start(lambda: data_gen(adxl, calib))
