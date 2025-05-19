@@ -6,9 +6,13 @@ class GyroscopeITG3200(I2CSensor):
         self._initialize()
 
     def _initialize(self):
-        self.write_register(0x3E, 0x00)  # Wake up
-        self.write_register(0x15, 0x07)  # Sample rate divider
-        self.write_register(0x16, 0x18)  # ±2000°/s, 256Hz low-pass
+        self.bus.write_byte_data(self.address, 0x3E, 0x00)
+        self.bus.write_byte_data(self.address, 0x15, 0x07)
+        self.bus.write_byte_data(self.address, 0x16, 0x18)
+        
+        # self.write_register(0x3E, 0x00)  # Wake up
+        # self.write_register(0x15, 0x07)  # Sample rate divider
+        # self.write_register(0x16, 0x18)  # ±2000°/s, 256Hz low-pass
 
     def read_raw(self):
         return self.read_raw_data(self.address, 0x1D, 6)
