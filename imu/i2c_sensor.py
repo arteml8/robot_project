@@ -23,10 +23,9 @@ class I2CSensor:
     return value - 65536 if value & 0x8000 else value
 
   def _load_offsets(self):
-    if not self.force_calibration:
-      self.offsets = self.cal_manager.get_offsets()
-      if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
-        print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
+    self.offsets = self.cal_manager.get_offsets()
+    if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
+      print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
 
   def read_raw_data(self, reg):
     data = self.bus.read_i2c_block_data(self.address, reg, 6)
