@@ -49,11 +49,11 @@ class I2CSensor:
         'z': sum(z_vals)/samples,
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
-    cal_manager.save_offsets(self.name, offsets)
+    self.cal_manager.save_offsets(self.name, offsets)
     return
 
-  def load_or_calibrate(self, cal_manager, force=False, tolerance=0.3):
-    existing = cal_manager.get_offsets(self.name)
+  def load_or_calibrate(self, force=False, tolerance=0.3):
+    existing = self.cal_manager.get_offsets(self.name)
     
     if not force:
         # Take a quick sample of 10 readings to compare against stored values
@@ -78,7 +78,7 @@ class I2CSensor:
     # Perform new calibration and save
     new_offsets = self.calibrate()
     self.offsets = new_offsets
-    cal_manager.save_offsets(self.name, new_offsets)
+    self.cal_manager.save_offsets(self.name, new_offsets)
 
   def read_scaled(self):
     x, y, z = self.read_raw()
