@@ -23,6 +23,7 @@ class I2CSensor:
 
   def _load_offsets(self):
     self.offsets = self.load_or_calibrate()
+    print(self.offsets)
     if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
       print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
 
