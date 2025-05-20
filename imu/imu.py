@@ -64,11 +64,18 @@ class IMU:
         acc_world = self.rotate_vector(acc, self.pitch, self.roll)  # yaw omitted for now
 
         # Subtract gravity
-        acc_world[2] -= 1.0
+        acc_world[2] -= 9.81
+
+        # Threshold small noise
+		acc_world[np.abs(acc_world) < 0.05] = 0
 
         # Integrate to velocity and position
         self.velocity += acc_world * dt
         self.position += self.velocity * dt
+
+        # Zero-velocity update if stationary
+        if np.linalg.norm(acc_world) < 0.1 and np.linalg.norm([gx, gy, gz]) < 0.01:
+            self.velocity = np.zeros(3)
 
     def rotate_vector(self, v, pitch, roll):
         # Rotate using pitch and roll (yaw to be added later)
