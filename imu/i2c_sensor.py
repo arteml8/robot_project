@@ -58,7 +58,8 @@ class I2CSensor:
     if not force:
         # Take a quick sample of 10 readings to compare against stored values
         x_vals, y_vals, z_vals = [], [], []
-        for _ in range(20):
+        samples = 20
+        for _ in range(samples):
           x, y, z = self.read_raw()
           x_vals.append(x)
           y_vals.append(y)
