@@ -9,6 +9,7 @@ class ADXL345Sensor(I2CSensor):
     msb_first = False
     super().__init__(bus_id, address, name, msb_first, scale_factor)
     self._initialize()
+    self._load_offsets()
 
   def _initialize(self):
     # Power on the sensor and set measurement mode
