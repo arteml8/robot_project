@@ -22,8 +22,8 @@ class I2CSensor:
     return value - 65536 if value & 0x8000 else value
 
   def _load_offsets(self):
-    self.offsets = self.load_or_calibrate()
-    print(self.offsets)
+    self.load_or_calibrate()
+
     if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
       print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
 
@@ -66,15 +66,11 @@ class I2CSensor:
           z_vals.append(z)
           time.sleep(0.01)
         x, y, z = sum(x_vals)/samples, sum(y_vals)/samples, sum(z_vals)/samples
-        print(x, y, z)
-
         deviation = {
             'x': abs(x - existing['x']),
             'y': abs(y - existing['y']),
             'z': abs(z - existing['z']),
         }
-
-        print(deviation)
         if all(deviation[axis] < tolerance for axis in ('x', 'y', 'z')):
             print(f"Loaded existing calibration for {self.name}: {existing}")
             self.offsets = existing
