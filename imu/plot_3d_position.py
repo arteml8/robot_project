@@ -4,7 +4,7 @@ from imu import IMU
 
 import time
 
-imu = IMU(force_calibration=True)
+imu = IMU(force_calibration=False)
 positions = []
 
 plt.ion()
