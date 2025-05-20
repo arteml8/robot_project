@@ -52,7 +52,7 @@ class I2CSensor:
     self.cal_manager.save_offsets(self.offsets)
     return
 
-  def load_or_calibrate(self, force=False, tolerance=0.3):
+  def load_or_calibrate(self, force=False, tolerance=20):
     existing = self.cal_manager.get_offsets()
     
     if not force:
@@ -79,7 +79,7 @@ class I2CSensor:
     # Perform new calibration and save
     new_offsets = self.calibrate()
     self.offsets = new_offsets
-    self.cal_manager.save_offsets(self.name, new_offsets)
+    self.cal_manager.save_offsets(new_offsets)
 
   def read_scaled(self):
     x, y, z = self.read_raw()
