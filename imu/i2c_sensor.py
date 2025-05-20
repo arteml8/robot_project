@@ -3,6 +3,9 @@
 import smbus2
 import time
 
+from calibration import CalibrationManager
+
+
 class I2CSensor:
   def __init__(self, bus=1, address=None, name='generic', msb_first=False, scale_factor=1):
     self.address = address
@@ -11,11 +14,23 @@ class I2CSensor:
     self.msb_first = msb_first
     self.lsb_scale = scale_factor
     self.offsets = {'x': 0, 'y': 0, 'z': 0}
+    self.cal_manager = CalibrationManager(self.name)
+    self.force_calibration = force_calibration
+    self._load_offsets()
 
   def _combine_bytes(self, byte1, byte2):
     high, low = (byte1, byte2) if self.msb_first else (byte2, byte1)
     value = (high << 8) | low
     return value - 65536 if value & 0x8000 else value
+
+  def _load_offsets(self):
+    if not self.force_calibration:
+      self.offsets = self.cal_manager.get_offsets()
+      if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
+        print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
+        return
+    self.calibrate()
+
 
   def read_raw_data(self, reg):
     data = self.bus.read_i2c_block_data(self.address, reg, 6)
@@ -39,10 +54,42 @@ class I2CSensor:
         'z': sum(z_vals)/samples,
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
+    cal_manager.save_offsets(self.name, offsets)
+    return
+
+  def load_or_calibrate(self, cal_manager, force=False, tolerance=0.3):
+    existing = cal_manager.get_offsets(self.name)
+    
+    if not force:
+        # Take a quick sample of 10 readings to compare against stored values
+        x_vals, y_vals, z_vals = [], [], []
+        for _ in range(20):
+          x, y, z = self.read_raw_data()
+          x_vals.append(x)
+          y_vals.append(y)
+          z_vals.append(z)
+          time.sleep(0.01)
+        x, y, z = sum(x_vals)/samples, sum(y_vals)/samples, sum(z_vals)/samples
+        deviation = {
+            'x': abs(x - existing['x']),
+            'y': abs(y - existing['y']),
+            'z': abs(z - existing['z']),
+        }
+        if all(deviation[axis] < tolerance for axis in ('x', 'y', 'z')):
+            print(f"Loaded existing calibration for {self.name}: {existing}")
+            self.offsets = existing
+            return
+
+    # Perform new calibration and save
+    new_offsets = self.calibrate()
+    self.offsets = new_offsets
+    cal_manager.save_offsets(self.name, new_offsets)
 
   def read_scaled(self):
-    x,y,z = self.read_raw()
+    x, y, z = self.read_raw()
     return x / self.lsb_scale, y / self.lsb_scale, z / self.lsb_scale
 
-  def apply_offsets(self, x, y, z):
-    return x-self.offsets['x'], y-self.offsets['y'], z-self.offsets['z']
+  def read_offset_and_scaled(self):
+    x, y, z = self.read_raw()
+    x, y, z = x-self.offsets['x'], y-self.offsets['y'], z-self.offsets['z']
+    return x / self.lsb_scale, y / self.lsb_scale, z / self.lsb_scale

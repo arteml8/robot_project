@@ -16,7 +16,12 @@ if __name__ == '__main__':
 	hmc = MagnetometerHMC5883L()
 	itg = GyroscopeITG3200()
 
-	try: 
+	for sensor in (adxl, hmc, itg):
+		sensor.calibrate()
+
+	try:
+		for sensor in (adxl, hmc, itg):
+		sensor.load_or_calibrate()
 		while True: 
 			for sensor in (adxl, hmc, itg):
 				data_gen(sensor)
