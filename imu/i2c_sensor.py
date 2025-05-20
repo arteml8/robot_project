@@ -34,7 +34,7 @@ class I2CSensor:
     z = self._combine_bytes(data[4], data[5])
     return x, y, z
 
-  def calibrate(self, sameples=100):
+  def calibrate(self, samples=100):
     print(f'Calibrating {self.name}... Hold Still.')
     x_vals, y_vals, z_vals = [], [], []
     for _ in range(samples):
