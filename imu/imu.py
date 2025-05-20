@@ -31,7 +31,7 @@ class IMU:
         ax, ay, az = self.accel.read_scaled()
         gx, gy, gz = self.gyro.read_scaled()      # rad/s
         mx, my, mz = self.mag.read_scaled()
-        print(f'Accel: {ax}, {ay}, {az}, Gyro: {gx}, {gy}, {gz}, Mag: {mx}, {my}, {mz}')
+        # print(f'Accel: {ax}, {ay}, {az}, Gyro: {gx}, {gy}, {gz}, Mag: {mx}, {my}, {mz}')
         return (ax, ay, az), (gx, gy, gz), (mx, my, mz)
 
     def get_accel_angles(self, ax, ay, az):
