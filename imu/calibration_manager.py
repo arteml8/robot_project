@@ -7,8 +7,8 @@ class CalibrationManager:
     self.sensor_name = sensor_name
     self.calibration_data = {}
 
-  def save_offsets(self):
-    calibration = {self.sensor_name : self.calibration_data}
+  def save_offsets(self, new_cal_data):
+    calibration = {self.sensor_name : new_cal_data}
     with open(self.filename, 'w') as f:
       json.dump(calibration, f, indent=4)
 
