@@ -53,7 +53,7 @@ class I2CSensor:
     return
 
   def load_or_calibrate(self, force=False, tolerance=0.3):
-    existing = self.cal_manager.get_offsets(self.name)
+    existing = self.cal_manager.get_offsets()
     
     if not force:
         # Take a quick sample of 10 readings to compare against stored values
