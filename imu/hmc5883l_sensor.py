@@ -8,6 +8,7 @@ class MagnetometerHMC5883L(I2CSensor):
     msb_first = True
     super().__init__(bus_id, address, name, msb_first, scale_factor)
     self._initialize()
+    self._load_offsets()
 
   def _initialize(self):
     self.bus.write_byte_data(self.address, 0x00, 0x70) # 8-average, 15 Hz

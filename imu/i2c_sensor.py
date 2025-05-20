@@ -15,7 +15,6 @@ class I2CSensor:
     self.lsb_scale = scale_factor
     self.offsets = {'x': 0, 'y': 0, 'z': 0}
     self.cal_manager = CalibrationManager(self.name)
-    self._load_offsets()
 
   def _combine_bytes(self, byte1, byte2):
     high, low = (byte1, byte2) if self.msb_first else (byte2, byte1)
