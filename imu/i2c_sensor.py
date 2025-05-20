@@ -23,7 +23,7 @@ class I2CSensor:
     return value - 65536 if value & 0x8000 else value
 
   def _load_offsets(self):
-    self.offsets = self.cal_manager.get_offsets()
+    self.offsets = self.load_or_calibrate()
     if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
       print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
 
