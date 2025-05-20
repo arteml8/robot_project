@@ -49,7 +49,7 @@ class I2CSensor:
         'z': sum(z_vals)/samples,
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
-    self.cal_manager.save_offsets(offsets)
+    self.cal_manager.save_offsets(self.offsets)
     return
 
   def load_or_calibrate(self, force=False, tolerance=0.3):
