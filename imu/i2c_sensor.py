@@ -38,7 +38,7 @@ class I2CSensor:
     print(f'Calibrating {self.name}... Hold Still.')
     x_vals, y_vals, z_vals = [], [], []
     for _ in range(samples):
-      x, y, z = self.read_raw_data()
+      x, y, z = self.read_raw()
       x_vals.append(x)
       y_vals.append(y)
       z_vals.append(z)
@@ -59,7 +59,7 @@ class I2CSensor:
         # Take a quick sample of 10 readings to compare against stored values
         x_vals, y_vals, z_vals = [], [], []
         for _ in range(20):
-          x, y, z = self.read_raw_data()
+          x, y, z = self.read_raw()
           x_vals.append(x)
           y_vals.append(y)
           z_vals.append(z)
