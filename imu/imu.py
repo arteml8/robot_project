@@ -44,7 +44,7 @@ class IMU:
         roll  = math.atan2(ay, az)
         return pitch, roll
 
-    def complementary_filter(self, acc_pitch, acc_roll, gx, gy, dt, alpha=0.98):
+    def complementary_filter(self, acc_pitch, acc_roll, gx, gy, dt, alpha=0.95):
         self.pitch = alpha * (self.pitch + gx * dt) + (1 - alpha) * acc_pitch
         self.roll  = alpha * (self.roll  + gy * dt) + (1 - alpha) * acc_roll
 
@@ -61,11 +61,18 @@ class IMU:
         # Optional: compute yaw using magnetometer (will add later)
         # Optional: transform acceleration into world frame and integrate
         acc = np.array([ax, ay, az])
-        acc_world = self.rotate_vector(acc, self.pitch, self.roll)  # yaw omitted for now
 
+        gravity = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
+        acc_world = self.rotate_vector(acc, self.pitch, self.roll) - gravity
+
+        # acc_world = self.rotate_vector(acc, self.pitch, self.roll)  # yaw omitted for now
+
+        print(f"Total accel magnitude: {np.linalg.norm(acc)}")
+        print(f"acc_world before gravity removal: {acc_world}")
         # Subtract gravity
-        acc_world[2] -= 9.81
+        acc_world[2] -= 1.0
 
+        print(f"acc_world after gravity removal: {acc_world}")
         # Threshold small noise
         acc_world[np.abs(acc_world) < 0.05] = 0
 
