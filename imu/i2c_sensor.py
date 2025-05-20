@@ -28,9 +28,6 @@ class I2CSensor:
       self.offsets = self.cal_manager.get_offsets()
       if any(self.offsets[axis] == 0 for axis in ('x', 'y', 'z')):
         print(f'WARNING: Sensor {self.name} might not have proper calibration in place.')
-        return
-    self.calibrate()
-
 
   def read_raw_data(self, reg):
     data = self.bus.read_i2c_block_data(self.address, reg, 6)
