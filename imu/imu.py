@@ -9,11 +9,15 @@ from calibration import Calibration
 
 
 class IMU:
-    def __init__(self):
+    def __init__(self, force_calibration=False):
         # Initialize sensors
         self.accel = ADXL345Sensor()
         self.gyro = GyroscopeITG3200()
         self.mag  = MagnetometerHMC5883L()
+
+        if force_calibration:
+        	for sensor in (self.accel, self.gyro, self.mag):
+        		sensor.calibrate()
 
         # Orientation state (radians)
         self.pitch = 0.0
@@ -28,9 +32,9 @@ class IMU:
         self.last_time = time.time()
 
     def read_sensors(self):
-        ax, ay, az = self.accel.read_scaled()
-        gx, gy, gz = self.gyro.read_scaled()      # rad/s
-        mx, my, mz = self.mag.read_scaled()
+        ax, ay, az = self.accel.read_offset_and_scaled()
+        gx, gy, gz = self.gyro.read_offset_and_scaled()      # rad/s
+        mx, my, mz = self.mag.read_offset_and_scaled()
         # print(f'Accel: {ax}, {ay}, {az}, Gyro: {gx}, {gy}, {gz}, Mag: {mx}, {my}, {mz}')
         return (ax, ay, az), (gx, gy, gz), (mx, my, mz)
 
