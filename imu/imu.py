@@ -67,7 +67,7 @@ class IMU:
         acc_world[2] -= 9.81
 
         # Threshold small noise
-		acc_world[np.abs(acc_world) < 0.05] = 0
+        acc_world[np.abs(acc_world) < 0.05] = 0
 
         # Integrate to velocity and position
         self.velocity += acc_world * dt
