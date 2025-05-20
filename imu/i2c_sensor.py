@@ -56,7 +56,7 @@ class I2CSensor:
     existing = self.cal_manager.get_offsets()
     
     if not force:
-        # Take a quick sample of 10 readings to compare against stored values
+        # Take a quick sample of 20 readings to compare against stored values
         x_vals, y_vals, z_vals = [], [], []
         samples = 20
         for _ in range(samples):
@@ -66,11 +66,15 @@ class I2CSensor:
           z_vals.append(z)
           time.sleep(0.01)
         x, y, z = sum(x_vals)/samples, sum(y_vals)/samples, sum(z_vals)/samples
+        print(x, y, z)
+
         deviation = {
             'x': abs(x - existing['x']),
             'y': abs(y - existing['y']),
             'z': abs(z - existing['z']),
         }
+
+        print(deviation)
         if all(deviation[axis] < tolerance for axis in ('x', 'y', 'z')):
             print(f"Loaded existing calibration for {self.name}: {existing}")
             self.offsets = existing
