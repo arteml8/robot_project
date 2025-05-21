@@ -65,7 +65,7 @@ class IMU:
 
         print(f"Total accel magnitude: {np.linalg.norm(acc)}")
         print(f"acc_world before gravity removal: {acc_world}")
-        gravity = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
+        gravity_world = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
         acc_world -= gravity_world
         # acc_world = self.rotate_vector(acc, self.pitch, self.roll) - gravity
 
