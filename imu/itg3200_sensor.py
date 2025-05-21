@@ -14,5 +14,9 @@ class GyroscopeITG3200(I2CSensor):
         self.bus.write_byte_data(self.address, 0x15, 0x07)  # Sample rate divider
         self.bus.write_byte_data(self.address, 0x16, 0x18)  # ±2000°/s, 256Hz low-pass
 
+    def calibrate(self, samples=100):
+        print(f"[{self.name}] Calibrating Gyroscope... Keep it completely still.")
+        super().calibrate(samples)
+
     def read_raw(self):
         return self.read_raw_data(0x1D)
