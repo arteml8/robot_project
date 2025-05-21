@@ -57,17 +57,33 @@ class IMU:
         acc_pitch, acc_roll = self.get_accel_angles(ax, ay, az)
         self.complementary_filter(acc_pitch, acc_roll, gx, gy, dt)
 
-        # Optional: compute yaw using magnetometer (will add later)
+        # Normalize magnetometer readings
+        norm = np.sqrt(mx**2 + my**2 + mz**2)
+        if norm == 0:
+            norm = 1e-6  # Avoid divide-by-zero
+        mx, my, mz = mx / norm, my / norm, mz / norm
+
+        # Compensate magnetometer tilt using pitch and roll
+        mag_x = mx * math.cos(pitch) + mz * math.sin(pitch)
+        mag_y = mx * math.sin(roll) * math.sin(pitch) + my * math.cos(roll) - mz * math.sin(roll) * math.cos(pitch)
+
+        yaw = math.atan2(-mag_y, mag_x)  # Negative for NED frame convention
+
+        # Store yaw
+        self.yaw = yaw
+
         # Optional: transform acceleration into world frame and integrate
         acc = np.array([ax, ay, az])
         # Rotate accel into world frame
-        acc_world = self.rotate_vector(acc, self.pitch, self.roll)
+        acc_world = self.rotate_vector_rpy(acc, self.roll, self.pitch, self.yaw)
 
         print(f"Total accel magnitude: {np.linalg.norm(acc)}")
         print(f"acc_world before gravity removal: {acc_world}")
-        gravity_world = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
+
+        # Remove gravity (assumed to be [0, 0, 1.0] in body frame before rotation)
+        gravity_body = np.array([0.0, 0.0, 1.0])
+        gravity_world = self.rotate_vector_rpy(gravity_body, self.roll, self.pitch, self.yaw)
         acc_world -= gravity_world
-        # acc_world = self.rotate_vector(acc, self.pitch, self.roll) - gravity
 
         print(f"acc_world after gravity removal: {acc_world}")
         # Threshold small noise
@@ -94,6 +110,23 @@ class IMU:
             [-math.sin(pitch), 0, math.cos(pitch)]
         ])
         return Ry @ Rx @ v
+
+    def rotate_vector_rpy(self, vec, roll, pitch, yaw):
+        # Rotation matrix from body to world frame
+        cr = math.cos(roll)
+        sr = math.sin(roll)
+        cp = math.cos(pitch)
+        sp = math.sin(pitch)
+        cy = math.cos(yaw)
+        sy = math.sin(yaw)
+
+        R = np.array([
+            [cp * cy, sr * sp * cy - cr * sy, cr * sp * cy + sr * sy],
+            [cp * sy, sr * sp * sy + cr * cy, cr * sp * sy - sr * cy],
+            [-sp,     sr * cp,                cr * cp]
+        ])
+
+        return R @ vec
 
     def get_position(self):
         return self.position
