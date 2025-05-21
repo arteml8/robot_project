@@ -41,7 +41,7 @@ class IMU:
         mag = np.array(self.mag.read_offset_and_scaled())
 
         # Update Madgwick filter
-        self.quaternion = self.ahrs.update(self.quaternion, gyr=gyro, acc=accel, mag=mag)
+        self.quaternion = self.ahrs.updateMARG(self.quaternion, gyr=gyro, acc=accel, mag=mag)
 
         # Convert quaternion to Euler angles
         r = R.from_quat([self.quaternion[1], self.quaternion[2], self.quaternion[3], self.quaternion[0]])  # x, y, z, w
