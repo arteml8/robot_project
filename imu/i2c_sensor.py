@@ -53,7 +53,7 @@ class I2CSensor:
 
   def load_or_calibrate(self, force=False, tolerance=20):
     existing = self.cal_manager.get_offsets()
-    axes = ('x', 'y') if name == 'ADXL345' else ('x', 'y', 'z')
+    axes = ('x', 'y') if self.name == 'ADXL345' else ('x', 'y', 'z')
     
     if not force:
         # Take a quick sample of 20 readings to compare against stored values
