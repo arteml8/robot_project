@@ -57,6 +57,10 @@ class IMU:
         acc_pitch, acc_roll = self.get_accel_angles(ax, ay, az)
         self.complementary_filter(acc_pitch, acc_roll, gx, gy, dt)
 
+        # Calculate tilt compensation for magnetometer
+        pitch = self.pitch
+        roll = self.roll
+
         # Normalize magnetometer readings
         norm = np.sqrt(mx**2 + my**2 + mz**2)
         if norm == 0:
