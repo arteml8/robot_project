@@ -60,7 +60,8 @@ class IMU:
         # Optional: compute yaw using magnetometer (will add later)
         # Optional: transform acceleration into world frame and integrate
         acc = np.array([ax, ay, az])
-
+        # Rotate accel into world frame
+        acc_world = self.rotate_vector(acc, self.pitch, self.roll)
 
         print(f"Total accel magnitude: {np.linalg.norm(acc)}")
         print(f"acc_world before gravity removal: {acc_world}")
