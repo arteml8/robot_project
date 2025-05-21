@@ -5,7 +5,6 @@ import numpy as np
 from adxl345_sensor import ADXL345Sensor
 from hmc5883l_sensor import MagnetometerHMC5883L
 from itg3200_sensor import GyroscopeITG3200
-from calibration import Calibration
 
 
 class IMU:
@@ -62,15 +61,12 @@ class IMU:
         # Optional: transform acceleration into world frame and integrate
         acc = np.array([ax, ay, az])
 
-        gravity = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
-        acc_world = self.rotate_vector(acc, self.pitch, self.roll) - gravity
-
-        # acc_world = self.rotate_vector(acc, self.pitch, self.roll)  # yaw omitted for now
 
         print(f"Total accel magnitude: {np.linalg.norm(acc)}")
         print(f"acc_world before gravity removal: {acc_world}")
-        # Subtract gravity
-        acc_world[2] -= 1.0
+        gravity = self.rotate_vector(np.array([0, 0, 1.0]), self.pitch, self.roll)
+        acc_world -= gravity_world
+        # acc_world = self.rotate_vector(acc, self.pitch, self.roll) - gravity
 
         print(f"acc_world after gravity removal: {acc_world}")
         # Threshold small noise
@@ -85,16 +81,16 @@ class IMU:
             self.velocity = np.zeros(3)
 
     def rotate_vector(self, v, pitch, roll):
-        # Rotate using pitch and roll (yaw to be added later)
+        # Roll (X), then pitch (Y)
         Rx = np.array([
             [1, 0, 0],
-            [0, math.cos(pitch), -math.sin(pitch)],
-            [0, math.sin(pitch), math.cos(pitch)]
+            [0, math.cos(roll), -math.sin(roll)],
+            [0, math.sin(roll), math.cos(roll)]
         ])
         Ry = np.array([
-            [math.cos(roll), 0, math.sin(roll)],
+            [math.cos(pitch), 0, math.sin(pitch)],
             [0, 1, 0],
-            [-math.sin(roll), 0, math.cos(roll)]
+            [-math.sin(pitch), 0, math.cos(pitch)]
         ])
         return Ry @ Rx @ v
 

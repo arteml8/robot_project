@@ -8,9 +8,17 @@ class CalibrationManager:
     self.calibration_data = {}
 
   def save_offsets(self, new_cal_data):
-    calibration = {self.sensor_name : new_cal_data}
+    # Load existing calibration data if available
+    if os.path.exists(self.filename):
+        with open(self.filename, 'r') as f:
+            self.calibration_data = json.load(f)
+    else:
+        self.calibration_data = {}
+
+    # Update sensor’s calibration data
+    self.calibration_data[self.sensor_name] = new_cal_data
     with open(self.filename, 'w') as f:
-      json.dump(calibration, f, indent=4)
+        json.dump(self.calibration_data, f, indent=4)
 
   def get_offsets(self):
     if os.path.exists(self.filename):
