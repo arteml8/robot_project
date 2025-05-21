@@ -43,9 +43,46 @@ class IMU:
         roll  = math.atan2(ay, az)
         return pitch, roll
 
-    def complementary_filter(self, acc_pitch, acc_roll, gx, gy, dt, alpha=0.95):
+    def get_yaw(self, mx, my, mz):
+        # Use current pitch and roll
+        pitch = self.pitch
+        roll = self.roll
+
+        # Normalize magnetometer readings
+        norm = math.sqrt(mx**2 + my**2 + mz**2)
+        if norm == 0:
+            norm = 1e-6
+        mx, my, mz = mx / norm, my / norm, mz / norm
+
+        # Tilt-compensated magnetic field
+        mag_x = mx * math.cos(pitch) + mz * math.sin(pitch)
+        mag_y = (
+            mx * math.sin(roll) * math.sin(pitch)
+            + my * math.cos(roll)
+            - mz * math.sin(roll) * math.cos(pitch)
+        )
+
+        yaw = math.atan2(-mag_y, mag_x)  # NED convention: yaw CW from north
+
+        # Apply magnetic declination
+        DECLINATION = math.radians(-13.9667)  # Boston, MA
+        yaw += DECLINATION
+
+        # Wrap yaw to [-pi, pi]
+        if yaw > math.pi:
+            yaw -= 2 * math.pi
+        elif yaw < -math.pi:
+            yaw += 2 * math.pi
+
+        return yaw
+
+    # def complementary_filter(self, acc_pitch, acc_roll, gx, gy, dt, alpha=0.95):
+    #     self.pitch = alpha * (self.pitch + gx * dt) + (1 - alpha) * acc_pitch
+    #     self.roll  = alpha * (self.roll  + gy * dt) + (1 - alpha) * acc_roll
+    def complementary_filter(self, acc_pitch, acc_roll, gx, gy, gz, mag_yaw, dt, alpha=0.95):
         self.pitch = alpha * (self.pitch + gx * dt) + (1 - alpha) * acc_pitch
         self.roll  = alpha * (self.roll  + gy * dt) + (1 - alpha) * acc_roll
+        self.yaw = alpha * (self.yaw + gz * dt) + (1 - alpha) * mag_yaw
 
     def update(self):
         now = time.time()
@@ -55,29 +92,12 @@ class IMU:
         (ax, ay, az), (gx, gy, gz), (mx, my, mz) = self.read_sensors()
 
         acc_pitch, acc_roll = self.get_accel_angles(ax, ay, az)
-        self.complementary_filter(acc_pitch, acc_roll, gx, gy, dt)
+        mag_yaw = self.get_yaw(mx, my, mz)
 
-        # Calculate tilt compensation for magnetometer
-        pitch = self.pitch
-        roll = self.roll
+        self.complementary_filter(acc_pitch, acc_roll, gx, gy, gz, mag_yaw, dt)
 
-        # Normalize magnetometer readings
-        norm = np.sqrt(mx**2 + my**2 + mz**2)
-        if norm == 0:
-            norm = 1e-6  # Avoid divide-by-zero
-        mx, my, mz = mx / norm, my / norm, mz / norm
-
-        # Compensate magnetometer tilt using pitch and roll
-        mag_x = mx * math.cos(pitch) + mz * math.sin(pitch)
-        mag_y = mx * math.sin(roll) * math.sin(pitch) + my * math.cos(roll) - mz * math.sin(roll) * math.cos(pitch)
-
-        yaw = math.atan2(-mag_y, mag_x)  # Negative for NED frame convention
-
-        # Store yaw
-        self.yaw = yaw
-
-        # Optional: transform acceleration into world frame and integrate
         acc = np.array([ax, ay, az])
+
         # Rotate accel into world frame
         acc_world = self.rotate_vector_rpy(acc, self.roll, self.pitch, self.yaw)
 
