@@ -50,10 +50,10 @@ class I2CSensor:
     }
     print(f'Calibration complete for {self.name}: {self.offsets}')
     self.cal_manager.save_offsets(self.offsets)
-    return
 
   def load_or_calibrate(self, force=False, tolerance=20):
     existing = self.cal_manager.get_offsets()
+    axes = ('x', 'y') if name == 'ADXL345' else ('x', 'y', 'z')
     
     if not force:
         # Take a quick sample of 20 readings to compare against stored values
@@ -71,7 +71,7 @@ class I2CSensor:
             'y': abs(y - existing['y']),
             'z': abs(z - existing['z']),
         }
-        if all(deviation[axis] < tolerance for axis in ('x', 'y', 'z')):
+        if all(deviation[axis] < tolerance for axis in axes):
             print(f"Loaded existing calibration for {self.name}: {existing}")
             self.offsets = existing
             return
