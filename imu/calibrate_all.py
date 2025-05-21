@@ -7,9 +7,9 @@ def main():
     gyro = GyroscopeITG3200()
     mag = MagnetometerHMC5883L()
 
-    accel.perform_calibration()
-    gyro.perform_calibration()
-    mag.perform_calibration()
+    accel.calibrate()
+    gyro.calibrate()
+    mag.calibrate()
 
 if __name__ == "__main__":
     main()
