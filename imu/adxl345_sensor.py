@@ -1,4 +1,5 @@
 from i2c_sensor import I2CSensor
+import time
 
 
 class ADXL345Sensor(I2CSensor):
