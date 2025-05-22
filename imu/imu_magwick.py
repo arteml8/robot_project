@@ -77,6 +77,16 @@ class IMU:
         self.velocity = self.velocity_ekf.get_velocity()
         self.position = self.velocity_ekf.get_position()
 
+        with open("imu_log.csv", "a") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                time.time(),
+                *self.position,
+                *self.velocity,
+                *self.accel_bias,
+                self.pitch, self.roll, self.yaw
+            ])
+
     def get_orientation(self):
         return self.pitch, self.roll, self.yaw
 
