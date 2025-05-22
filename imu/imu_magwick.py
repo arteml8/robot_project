@@ -55,7 +55,7 @@ class IMU:
         acc_world = r.apply(accel)
 
         # Subtract gravity
-        gravity = np.array([0.0, 0.0, 9.81])
+        gravity = np.array([0.0, 0.0, 1.0]) #9.81])
         acc_world -= gravity
 
         # Threshold noise
