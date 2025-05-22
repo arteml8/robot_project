@@ -1,4 +1,5 @@
-import time
+from datetime import datetime
+
 import numpy as np
 from ahrs.filters import Madgwick
 from scipy.spatial.transform import Rotation as R
@@ -14,6 +15,8 @@ class IMU:
         self.gyro = GyroscopeITG3200()
         self.mag = MagnetometerHMC5883L()
         self.velocity_ekf = VelocityEKF()
+        self.accel_filtered = np.zeros(3)
+        self.accel_bias = np.zeros(3)
 
         if force_calibration:
             for sensor in (self.accel, self.gyro, self.mag):
@@ -29,21 +32,22 @@ class IMU:
         self.velocity = np.zeros(3)
         self.position = np.zeros(3)
 
-        self.last_time = time.time()
+        self.last_time = datetime.utcnow().isoformat()
 
     def update(self):
-        now = time.time()
-        dt = now - self.last_time
+        now = datetime.utcnow().isoformat()
+        dt = min(max(now - self.last_time, 0.001), 0.1)  # clamp between 1ms and 100ms
         self.last_time = now
 
         # Read sensors
         accel = np.array(self.accel.read_offset_and_scaled())
         gyro = np.array(self.gyro.read_offset_and_scaled())  # in rad/s
         mag = np.array(self.mag.read_offset_and_scaled())
+        accel_mps2 = accel * 9.80665
 
         # Update Madgwick filter
         self.quaternion = self.ahrs.updateMARG(
-            self.quaternion, gyr=gyro, acc=accel, mag=mag
+            self.quaternion, gyr=gyro, acc=accel_mps2, mag=mag
         )
 
         # Convert quaternion to Euler angles
@@ -57,20 +61,25 @@ class IMU:
         self.yaw = yaw
 
         # Rotate acceleration to world frame
-        acc_world = r.apply(accel)
+        acc_world = r.apply(accel_mps2)
 
         # Subtract gravity
-        gravity = np.array([0.0, 0.0, 1.0])  # Using g = 1.0 in your units
-        acc_world -= gravity
+        g_world = r.apply([0, 0, 9.80665])
+        # gravity = np.array([0.0, 0.0, 9.80665])
+        acc_world -= g_world
+
+        # Add a low pass filter for acceleration accumulation
+        alpha = 0.15
+        self.accel_filtered = alpha * acc_world + (1 - alpha) * self.accel_filtered
 
         # Threshold noise
-        acc_world[np.abs(acc_world) < 0.05] = 0
+        self.accel_filtered[np.abs(self.accel_filtered) < 0.05] = 0
 
         # EKF prediction
-        self.velocity_ekf.predict(acc_world, dt)
+        self.velocity_ekf.predict(self.accel_filtered, dt)
 
         # ZUPT condition
-        if np.linalg.norm(acc_world) < 0.1 and np.linalg.norm(gyro) < 0.01:
+        if np.linalg.norm(self.accel_filtered) < 0.1 and np.linalg.norm(gyro) < 0.01:
             self.velocity_ekf.update_zupt()
 
         # Update state
@@ -80,7 +89,7 @@ class IMU:
         with open("imu_log.csv", "a") as f:
             writer = csv.writer(f)
             writer.writerow([
-                time.time(),
+                self.last_time,
                 *self.position,
                 *self.velocity,
                 *self.accel_bias,
