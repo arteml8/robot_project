@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from imu_magwick import IMU
+from imu_madgwick import IMU
 
 import time
 
