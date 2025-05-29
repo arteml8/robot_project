@@ -1,6 +1,6 @@
 # fusion/test_gnss.py
 
-from fusion.gnss_receiver import GNSSReceiver
+from gnss_receiver import GNSSReceiver
 import time
 
 def fmt(val, precision=2, default="N/A"):
