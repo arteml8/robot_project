@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import numpy as np
+import time
 
 from imu.adxl345_sensor import ADXL345Sensor
 from imu.hmc5883l_sensor import MagnetometerHMC5883L
