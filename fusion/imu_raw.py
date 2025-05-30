@@ -17,7 +17,7 @@ class ImuRaw:
             for sensor in (self.accel, self.gyro, self.mag):
                 sensor.calibrate()
 
-def update(self):
+	def update(self):
         now = time.time()
         dt = min(max(now - self.last_time, 0.001), 0.1)
         self.last_time = now
