@@ -1,4 +1,4 @@
-from i2c_sensor import I2CSensor
+from imu.i2c_sensor import I2CSensor
 
 class GyroscopeITG3200(I2CSensor):
     def __init__(self, bus_id=1, address=0x68):

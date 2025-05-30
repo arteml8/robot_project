@@ -3,7 +3,7 @@
 import smbus2
 import time
 
-from calibration_manager import CalibrationManager
+from imu.calibration_manager import CalibrationManager
 
 
 class I2CSensor:

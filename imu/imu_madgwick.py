@@ -4,10 +4,10 @@ import numpy as np
 from ahrs.filters import Madgwick
 from scipy.spatial.transform import Rotation as R
 
-from adxl345_sensor import ADXL345Sensor
-from hmc5883l_sensor import MagnetometerHMC5883L
-from itg3200_sensor import GyroscopeITG3200
-from velocity_ekf import VelocityEKF
+from imu.adxl345_sensor import ADXL345Sensor
+from imu.hmc5883l_sensor import MagnetometerHMC5883L
+from imu.itg3200_sensor import GyroscopeITG3200
+from imu.velocity_ekf import VelocityEKF
 
 class IMU:
     def __init__(self, force_calibration=False):

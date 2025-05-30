@@ -1,4 +1,4 @@
-from i2c_sensor import I2CSensor
+from imu.i2c_sensor import I2CSensor
 
 
 class MagnetometerHMC5843(I2CSensor):

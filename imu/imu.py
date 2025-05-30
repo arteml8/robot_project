@@ -2,9 +2,9 @@ import time
 import math
 import numpy as np
 
-from adxl345_sensor import ADXL345Sensor
-from hmc5883l_sensor import MagnetometerHMC5883L
-from itg3200_sensor import GyroscopeITG3200
+from imu.adxl345_sensor import ADXL345Sensor
+from imu.hmc5883l_sensor import MagnetometerHMC5883L
+from imu.itg3200_sensor import GyroscopeITG3200
 
 
 class IMU:
