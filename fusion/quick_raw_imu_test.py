@@ -1,5 +1,5 @@
 import time
-from fusion.imu_raw import ImuRaw
+from imu_raw import ImuRaw
 
 IMU = ImuRaw()
 while True:
