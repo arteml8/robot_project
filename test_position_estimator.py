@@ -13,10 +13,8 @@ last_time = time.time()
 
 while True:
     # --- IMU Update ---
-    accel, gyro, mag = imu.update()  # numpy arrays
-    now = time.time()
-    dt = now - last_time
-    last_time = now
+    imu_dict = imu.update()
+    accel, gyro, mag, dt = imu_dict['accel'], imu_dict['gyro'], imu_dict['mag'], imu_dict['dt']
     estimator.update_imu(accel, gyro, mag, dt)
 
     # --- GNSS Update ---
