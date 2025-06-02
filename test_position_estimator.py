@@ -2,11 +2,11 @@
 
 from fusion.position_estimator import PositionEstimator
 from fusion.imu_raw import RawIMU
-from gnss.gnss import GNSS
+from gnss.gnss_receiver import GNSSReceiver
 import time
 
 imu = RawIMU()
-gnss = GNSS()
+gnss = GNSSReceiver()
 estimator = PositionEstimator()
 
 last_time = time.time()
