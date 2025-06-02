@@ -23,16 +23,14 @@ class PositionEstimator:
             "dt": dt,
         }
 
-    def update_gnss(self, lat, lon, alt, speed=None, heading=None, timestamp=None):
+    def update_gnss(self, lat, lon, speed=None, timestamp=None):
         """
         Called when new GNSS data arrives.
         """
         self.last_gnss = {
             "lat": lat,
             "lon": lon,
-            "alt": alt,
             "speed": speed,
-            "heading": heading,
             "timestamp": timestamp,
         }
 
