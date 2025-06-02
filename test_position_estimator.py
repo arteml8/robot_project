@@ -1,7 +1,7 @@
 # fusion/test_position_estimator.py
 
 from fusion.position_estimator import PositionEstimator
-from imu.imu_raw import RawIMU
+from fusion.imu_raw import RawIMU
 from gnss.gnss import GNSS
 import time
 
