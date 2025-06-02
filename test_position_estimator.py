@@ -13,7 +13,7 @@ last_time = time.time()
 
 while True:
     # --- IMU Update ---
-    accel, gyro, mag = imu.read_all()  # numpy arrays
+    accel, gyro, mag = imu.update()  # numpy arrays
     now = time.time()
     dt = now - last_time
     last_time = now
