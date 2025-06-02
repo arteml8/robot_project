@@ -7,7 +7,7 @@ from imu.adxl345_sensor import ADXL345Sensor
 from imu.hmc5883l_sensor import MagnetometerHMC5883L
 from imu.itg3200_sensor import GyroscopeITG3200
 
-class ImuRaw:
+class RawIMU:
     def __init__(self, force_calibration=False):
         self.accel = ADXL345Sensor()
         self.gyro = GyroscopeITG3200()
