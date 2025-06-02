@@ -21,11 +21,9 @@ while True:
     gps_data = gnss.read()
     if gps_data is not None:
         estimator.update_gnss(
-            lat=gps_data["lat"],
-            lon=gps_data["lon"],
-            alt=gps_data["alt"],
+            lat=gps_data["latitude"],
+            lon=gps_data["longitude"],
             speed=gps_data.get("speed"),
-            heading=gps_data.get("heading"),
             timestamp=gps_data.get("timestamp")
         )
 
