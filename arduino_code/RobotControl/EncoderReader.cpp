@@ -2,26 +2,30 @@
 
 const uint8_t EncoderReader::encoderPins[4] = {22, 23, 24, 25};
 
-EncoderReader::EncoderReader() {
+EncoderReader::EncoderReader() : lastMicros(0) {
     for (int i = 0; i < 4; i++) {
         tickCounts[i] = 0;
-        lastStates[i] = LOW;
+        lastStates[i] = HIGH;
     }
 }
 
 void EncoderReader::setup() {
-    for (uint8_t pin : encoderPins) {
-        pinMode(pin, INPUT);
+    for (int i = 0; i < 4; i++) {
+        pinMode(encoderPins[i], INPUT_PULLUP);
     }
 }
 
 void EncoderReader::update() {
+    unsigned long now = micros();
+    if (now - lastMicros < 100) return; // Poll at ~10 kHz
+    lastMicros = now;
+
     for (int i = 0; i < 4; i++) {
         bool state = digitalRead(encoderPins[i]);
-        if (state != lastStates[i]) {
-            lastStates[i] = state;
-            if (state == HIGH) tickCounts[i]++;
+        if (lastStates[i] == LOW && state == HIGH) {
+            tickCounts[i]++;
         }
+        lastStates[i] = state;
     }
 }
 
