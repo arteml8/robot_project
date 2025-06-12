@@ -5,7 +5,7 @@ PORT = 23
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-    s.sendall(b"CMD:DRIVE:0.2,0.0,0.0\n")
+    s.sendall(b"CMD:DRIVE_TIME:0.2,0.0,0.0,2.0\n")
     print("Sent command")
 
     response = s.recv(1024)
