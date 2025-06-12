@@ -17,12 +17,12 @@ void EncoderReader::setup() {
 
 void EncoderReader::update() {
     unsigned long now = micros();
-    if (now - lastMicros < 100) return; // Poll at ~10 kHz
+    if (now - lastMicros < 50) return; // Poll at ~10 kHz
     lastMicros = now;
 
     for (int i = 0; i < 4; i++) {
         bool state = digitalRead(encoderPins[i]);
-        if (lastStates[i] == LOW && state == HIGH) {
+        if (state != lastStates[i]) {
             tickCounts[i]++;
         }
         lastStates[i] = state;

@@ -10,6 +10,10 @@ public:
     MotorPIDController(MotorController& motorCtrl, EncoderReader& encoder);
     void setup();
     void update();  // Call periodically in loop()
+    void resetDistanceTracking();                         // call this when starting a new move
+    float getAverageDistanceMeters();                     // useful for stopping when distance met
+    float getMotorDistanceMeters(uint8_t motorIndex);     // optional, if needed per motor
+    void setTicksPerMeter(float tpm);                     // let external code define scale
     void setTargetSpeed(uint8_t motorIndex, float ticksPerSecond);
     void resetAll();
 
@@ -22,9 +26,11 @@ private:
         float integral = 0;
         int pwmOutput = 0;
         long lastTicks = 0;
+        long startTicks = 0;            // ← NEW: for distance tracking
         unsigned long lastUpdate = 0;
     };
 
+    float ticksPerMeter = 1000.0;  // default — will be set properly from MotionController
     static const uint8_t motorCount = 4;
     PIDState pidStates[motorCount];
 
@@ -35,8 +41,8 @@ private:
     // const float Ki = 0.0;
     // const float Kd = 0.05;
 
-    const float Kp = 0.8;
-    const float Ki = 0.02;
+    const float Kp = 1.0;
+    const float Ki = 0.01;
     const float Kd = 0.05;
 };
 
