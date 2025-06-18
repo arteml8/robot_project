@@ -1,7 +1,7 @@
 #include "MotorController.h"
 #include "EncoderReader.h"
 #include "MessageHandler.h"
-#include "EthernetComms.h"
+#include <Ethernet.h>
 // #include "BluetoothComms.h"
 #include "MotionController.h"
 
@@ -12,7 +12,7 @@ bool systemReady = false;
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192, 168, 1, 177);  // use your actual IP
-EthernetComms ethComms(ip, mac);
+EthernetServer server(23);
 
 MotorController motors;
 EncoderReader encoders;
@@ -37,6 +37,7 @@ void setup() {
     }
 
     Serial.begin(115200);
+    Serial1.begin(115200);
     motors.setup();
     encoders.setup();
     pid.setup();
@@ -45,8 +46,11 @@ void setup() {
     motion.stop();
     Serial.println("Robot system initialized.");
     Serial.println("Ready for commands over Serial");
-    ethComms.begin()
+    Ethernet.begin(mac, ip);
+    server.begin();
     Serial.println("Ready for commands over Ethernet");
+    Serial.print("My IP address: ");
+    Serial.println(Ethernet.localIP());
     // testMotorDirections();
     delay(500);
     systemReady = true;
@@ -70,12 +74,17 @@ void loop() {
       Serial.println(response);  // Echo back result (ACK or ERR)
     }
     
-    ethComms.update();
-    if (ethComms.hasNewMessage()) {
-        String cmd = ethComms.getMessage();
-        handler.handle(cmd);
+    // ethComms.update();
+    // if (ethComms.hasNewMessage()) {
+    //     String cmd = ethComms.getMessage();
+    //     handler.processCommand(cmd);
+    // }
+    if (Serial1.available()) {
+      String msg = Serial1.readStringUntil('\n');  // read full message
+      Serial.print("From ESP32: ");
+      Serial.println(msg);
     }
-    
+
     encoders.update();
     pid.update();
     motion.update();
