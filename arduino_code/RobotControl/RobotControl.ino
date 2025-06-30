@@ -2,13 +2,15 @@
 #include "EncoderReader.h"
 #include "MessageHandler.h"
 #include <Ethernet.h>
-// #include "BluetoothComms.h"
 #include "MotionController.h"
 
 unsigned long lastRunTime = 0;
 unsigned long stop_motors_time = 0;
+unsigned long lastBLECommandTime = millis();
 const unsigned long interval = 500; // 500 milliseconds
+const unsigned long BLE_TIMEOUT = 3000; // 3 seconds
 bool systemReady = false;
+bool seenCommand = false;
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress ip(192, 168, 1, 177);  // use your actual IP
@@ -16,7 +18,6 @@ EthernetServer server(23);
 
 MotorController motors;
 EncoderReader encoders;
-// BluetoothComms bluetooth(Serial1);  // Using Mega’s Serial1 (TX1:18, RX1:19)
 MotorPIDController pid(motors, encoders);
 MotionController motion(pid);
 MessageHandler handler(motion);
@@ -42,7 +43,6 @@ void setup() {
     encoders.setup();
     pid.setup();
     motion.setup();
-    // bluetooth.setup();
     motion.stop();
     Serial.println("Robot system initialized.");
     Serial.println("Ready for commands over Serial");
@@ -58,55 +58,38 @@ void setup() {
 
 void loop() {
     if (!systemReady) {
-      Serial.println("SYSTEM NOT READY!");
-      return;
+        Serial.println("SYSTEM NOT READY!");
+        return;
     }
-    // bluetooth.update();
 
-    // if (bluetooth.hasNewCommand()) {
-    //     Serial.println("GOT A COMMAND!");
-    //     MotionCommand cmd = bluetooth.getLatestCommand();
-    //     motion.applyCommand(cmd);
-    // }
+    // Handle Serial (USB) commands
     if (Serial.available()) {
-      String rawCmd = Serial.readStringUntil('\n');
-      String response = handler.processCommand(rawCmd);
-      Serial.println(response);  // Echo back result (ACK or ERR)
-    }
-    
-    // ethComms.update();
-    // if (ethComms.hasNewMessage()) {
-    //     String cmd = ethComms.getMessage();
-    //     handler.processCommand(cmd);
-    // }
-    if (Serial1.available()) {
-      String msg = Serial1.readStringUntil('\n');  // read full message
-      Serial.print("From ESP32: ");
-      Serial.println(msg);
+        String rawCmd = Serial.readStringUntil('\n');
+        String response = handler.processCommand(rawCmd);
+        Serial.println(response);
     }
 
+    // Handle Serial1 (BLE/ESP32) commands
+    if (Serial1.available()) {
+        String msg = Serial1.readStringUntil('\n');
+        msg.trim();
+        if (msg.length() > 0) {
+            lastBLECommandTime = millis();
+            seenCommand = true;
+            String response = handler.processCommand(msg);
+            Serial1.println(response);
+        }
+    }
+
+    // If too long since last BLE command, stop motors
+    if (seenCommand && millis() - lastBLECommandTime > BLE_TIMEOUT) {
+        Serial.println("⚠️ BLE TIMEOUT - No commands in 3s. Stopping motors.");
+        motion.stop();
+        seenCommand = false;  // Prevent repeated stop calls
+    }
+
+    // Update control systems
     encoders.update();
     pid.update();
     motion.update();
-    
-    // unsigned long now = millis();
-
-    // Example: move forward for 1 meter at moderate speed
-    // static bool testStarted = false;
-    // if (!testStarted) {
-    //     motion.driveFor(0.0, 0.2, 0.0, 1);
-    //     // motion.driveDistance(1.0, 0.2, 0.0, 0.0);
-    //     testStarted = true;
-    // }
-
-    // // Optionally: print encoder ticks
-    // if (now - lastRunTime >= interval) {
-    //   lastRunTime = now;
-    //   for (int i = 0; i < 4; i++) {
-    //       Serial.print("Motor ");
-    //       Serial.print(i);
-    //       Serial.print(": ");
-    //       Serial.println(encoders.getTicks(i));
-    //   }
-    // }
 }
