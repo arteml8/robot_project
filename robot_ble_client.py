@@ -14,7 +14,7 @@ class RobotBLEClient:
     async def connect(self):
         devices = await BleakScanner.discover()
         for d in devices:
-            if self.device_name in d.name:
+            if UART_SERVICE_UUID in d.metadata.get('uuids'):
                 print(f"🔗 Connecting to {d.name} ({d.address})")
                 self.client = BleakClient(d.address)
                 await self.client.connect()
