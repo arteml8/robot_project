@@ -2,6 +2,7 @@ import asyncio
 from bleak import BleakClient, BleakScanner
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+MAC = "64:E8:33:B7:71:56"
 TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"  # ESP32 → Jetson
 RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"  # Jetson → ESP32
 
@@ -10,11 +11,12 @@ class RobotBLEClient:
         self.device_name = device_name
         self.client = None
         self.tx_char = None
+        self.on_encoder_update = None  # callback to send to OdometryTracker
 
     async def connect(self):
         devices = await BleakScanner.discover()
         for d in devices:
-            if UART_SERVICE_UUID in d.metadata.get('uuids'):
+            if MAC in d.address:
                 print(f"🔗 Connecting to {d.name} ({d.address})")
                 self.client = BleakClient(d.address)
                 await self.client.connect()
@@ -38,7 +40,18 @@ class RobotBLEClient:
                         self.tx_char = char
 
     def _notification_handler(self, sender, data):
-        print(f"🔄 Received: {data.decode().strip()}")
+        message = data.decode().strip()
+        print(f"🔄 Received: {message}")
+
+        if message.startswith("ENC:"):
+            tick_strs = message.replace("ENC:", "").split(",")
+            if len(tick_strs) == 4:
+                try:
+                    tick_values = list(map(int, tick_strs))
+                    if self.on_encoder_update:
+                        self.on_encoder_update(tick_values)
+                except ValueError:
+                    print("⚠️ Invalid encoder data")
 
     async def send(self, command: str):
         if self.client and self.client.is_connected and self.tx_char:
