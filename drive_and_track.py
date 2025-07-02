@@ -29,7 +29,7 @@ async def main():
         asyncio.create_task(client.poll_encoders(200))  # Poll every 200ms
 
         # Move forward briefly
-        await client.send("CMD:DRIVE:0.2,0.0,0.0\n")
+        await client.send("CMD:DRIVE:0.3,0.0,0.0\n")
         await asyncio.sleep(2.0)
         await client.send("CMD:STOP\n")
 

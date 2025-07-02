@@ -12,6 +12,7 @@ class RobotBLEClient:
         self.client = None
         self.tx_char = None
         self.on_encoder_update = None  # callback to send to OdometryTracker
+        self._write_lock = asyncio.Lock()
 
     async def connect(self):
         devices = await BleakScanner.discover()
@@ -25,7 +26,7 @@ class RobotBLEClient:
         print("❌ Device not found.")
         return False
 
-    async def poll_encoders(self, interval_ms=100):
+    async def poll_encoders(self, interval_ms=1000):
         while self.client and self.client.is_connected:
             await self.send("CMD:GET_ENCODERS\n")
             await asyncio.sleep(interval_ms / 1000)
@@ -55,8 +56,9 @@ class RobotBLEClient:
 
     async def send(self, command: str):
         if self.client and self.client.is_connected and self.tx_char:
-            await self.client.write_gatt_char(self.tx_char, command.encode())
-            print(f"➡️ Sent: {command.strip()}")
+            async with self._write_lock:
+                await self.client.write_gatt_char(self.tx_char, command.encode())
+                print(f"➡️ Sent: {command.strip()}")
 
     async def disconnect(self):
         if self.client:
