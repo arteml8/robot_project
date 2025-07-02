@@ -23,6 +23,11 @@ class RobotBLEClient:
         print("❌ Device not found.")
         return False
 
+    async def poll_encoders(self, interval_ms=100):
+        while self.client and self.client.is_connected:
+            await self.send("CMD:GET_ENCODERS\n")
+            await asyncio.sleep(interval_ms / 1000)
+
     async def _discover_services(self):
         for service in self.client.services:
             if UART_SERVICE_UUID in str(service.uuid):

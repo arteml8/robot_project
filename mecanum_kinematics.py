@@ -1,27 +1,31 @@
-import numpy as np
+import math
 
-class MecanumModel:
-    def __init__(self, wheel_radius, robot_width, robot_length, ticks_per_rev):
-        self.r = wheel_radius
-        self.l = robot_length
-        self.w = robot_width
+class MecanumKinematics:
+    def __init__(self, wheel_radius, wheel_base_length, wheel_base_width, ticks_per_rev, gear_ratio=1.0):
+        self.r = wheel_radius  # in meters
+        self.L = wheel_base_length  # front-back
+        self.W = wheel_base_width   # left-right
         self.ticks_per_rev = ticks_per_rev
-        self.distance_per_tick = 2 * np.pi * self.r / self.ticks_per_rev
+        self.gear_ratio = gear_ratio
 
-    def encoder_ticks_to_velocity(self, ticks):
-        # ticks: [FL, FR, BL, BR]
-        meters = [t * self.distance_per_tick for t in ticks]
-        vx = (meters[0] + meters[1] + meters[2] + meters[3]) / 4.0
-        vy = (-meters[0] + meters[1] + meters[2] - meters[3]) / 4.0
-        omega = (-meters[0] + meters[1] - meters[2] + meters[3]) / (4.0 * (self.l + self.w))
-        return vx, vy, omega
+        # Distance per tick
+        self.ticks_to_meters = (2 * math.pi * self.r) / (self.ticks_per_rev * self.gear_ratio)
 
-    def velocity_to_encoder_ticks(self, vx, vy, omega, dt):
-        # compute per wheel distances
-        v_fl = vx - vy - (self.l + self.w) * omega
-        v_fr = vx + vy + (self.l + self.w) * omega
-        v_bl = vx + vy - (self.l + self.w) * omega
-        v_br = vx - vy + (self.l + self.w) * omega
-        distances = [v * dt for v in [v_fl, v_fr, v_bl, v_br]]
-        ticks = [int(d / self.distance_per_tick) for d in distances]
-        return ticks
+    def forward_kinematics(self, delta_ticks):
+        """
+        Compute robot-centric motion (dx, dy, dtheta) given tick deltas from each wheel.
+        Wheel order: [FL, FR, BR, BL]
+        """
+        if len(delta_ticks) != 4:
+            raise ValueError("Expected 4 tick values")
+
+        # Convert ticks to linear distance for each wheel
+        distances = [ticks * self.ticks_to_meters for ticks in delta_ticks]
+        v_fl, v_fr, v_br, v_bl = distances
+
+        # Inverse kinematics for mecanum wheels (assuming center of robot)
+        dx = (v_fl + v_fr + v_br + v_bl) / 4.0
+        dy = (-v_fl + v_fr + v_br - v_bl) / 4.0
+        dtheta = (-v_fl + v_fr - v_br + v_bl) / (4 * (self.L + self.W))
+
+        return dx, dy, dtheta

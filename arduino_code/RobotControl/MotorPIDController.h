@@ -12,9 +12,11 @@ public:
     void update();  // Call periodically in loop()
     void resetDistanceTracking();                         // call this when starting a new move
     float getAverageDistanceMeters();                     // useful for stopping when distance met
+    void getTicks(int* outTicks);                         // helpful function that gets the ticks from the encoder reader
     float getMotorDistanceMeters(uint8_t motorIndex);     // optional, if needed per motor
     void setTicksPerMeter(float tpm);                     // let external code define scale
     void setTargetSpeed(uint8_t motorIndex, float ticksPerSecond);
+    void resetEncoders();
     void resetAll();
 
 private:

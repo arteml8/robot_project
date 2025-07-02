@@ -41,6 +41,27 @@ String MessageHandler::processCommand(const String& rawCmd) {
         return "ACK:STOP";
     }
 
+    if (cmd.startsWith("CMD:GET_ENCODERS")) {
+        int ticks[4];
+        motion.getTicks(ticks);
+
+        String result = "ENC:";
+        for (int i = 0; i < 4; i++) {
+            result += String(ticks[i]);
+            if (i < 3) result += ",";
+        }
+        return result;
+    }
+
+    if (cmd.startsWith("CMD:RESET_ENCODERS")) {
+        motion.resetEncoders();
+        return "ACK:ENCODERS_RESET";
+    }
+
+    if (cmd.startsWith("CMD:PING")) {
+        return "ACK:PONG";
+    }
+
     return "ERR:UNKNOWN_CMD";
 }
 

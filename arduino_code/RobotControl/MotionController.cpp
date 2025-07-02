@@ -53,6 +53,14 @@ void MotionController::applyCommand(const MotionCommand& cmd) {
     }
 }
 
+void MotionController::getTicks(int* outTicks) {
+    motorPID.getTicks(outTicks);
+}
+
+void MotionController::resetEncoders(){
+    return motorPID.resetEncoders();
+}
+
 void MotionController::update() {
     if (currentCommand.type == MotionType::TIME) {
         unsigned long now = millis();

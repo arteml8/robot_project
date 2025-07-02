@@ -49,6 +49,16 @@ void MotorPIDController::setTicksPerMeter(float tpm) {
     ticksPerMeter = tpm;
 }
 
+void MotorPIDController::getTicks(int* outTicks) {
+    for (int i = 0; i < motorCount; ++i) {
+        outTicks[i] = encoders.getTicks(i);
+    }
+}
+
+void MotorPIDController::resetEncoders() {
+    encoders.reset();
+}
+
 void MotorPIDController::update() {
     unsigned long now = millis();
 

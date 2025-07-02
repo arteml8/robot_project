@@ -10,9 +10,11 @@ public:
     MotionController(MotorPIDController& pidController);
     void setup();
     void drive(float forward, float strafe, float rotate);  // Input units: meters/sec or arbitrary
-    void driveFor(float forward, float strafe, float rotate, float duration_s);  // NEW
-    void driveDistance(float forward, float strafe, float rotate, float meters); // NEW
+    void getTicks(int* outTicks);                           // Get ticks from the encoder count via the motor pid controller
+    void driveFor(float forward, float strafe, float rotate, float duration_s);
+    void driveDistance(float forward, float strafe, float rotate, float meters);
     void stop();
+    void resetEncoders();
     void applyCommand(const MotionCommand& cmd);
     void update();  // Call regularly
 
