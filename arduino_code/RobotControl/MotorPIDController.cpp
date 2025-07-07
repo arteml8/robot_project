@@ -1,9 +1,10 @@
 #include "MotorPIDController.h"
 
-static const int UPDATE_INTERVAL =50;
+static const int PID_UPDATE_INTERVAL_MS = 50;
 static const int MAX_PWM = 255;
 static const int MIN_EFFECTIVE_PWM = 70;
 static const float SPEED_DEADZONE_TICKS = 3.0; // small value to ignore near-zero speeds
+const float MAX_INTEGRAL = 10.0;
 
 
 MotorPIDController::MotorPIDController(MotorController& motorCtrl, EncoderReader& encoder)
@@ -60,6 +61,67 @@ void MotorPIDController::resetEncoders() {
 }
 
 void MotorPIDController::update() {
+    for (int i = 0; i < motorCount; i++) {
+        float speed = pidStates[i].targetSpeed;
+        int pwm = map(speed, -MAX_PWM, MAX_PWM, -255, 255);
+        motors.setMotorSpeed(i, pwm);
+    }
+}
+
+// void MotorPIDController::update() {
+//     unsigned long now = millis();
+//     if (now - lastUpdateTime < PID_UPDATE_INTERVAL_MS) {
+//         return; // Skip until next interval
+//     }
+
+//     float dt = (now - lastUpdateTime) / 1000.0; // Convert ms to seconds
+//     lastUpdateTime = now;
+
+//     for (int i = 0; i < motorCount; i++) {
+//         PIDState& state = pidStates[i];
+
+//         long currentTicks = encoders.getTicks(i);
+//         long tickDiff = currentTicks - state.lastTicks;
+//         state.lastTicks = currentTicks;
+
+//         state.currentSpeed = tickDiff / dt;
+
+//         if (abs(state.targetSpeed) < SPEED_DEADZONE_TICKS) {
+//             state.integral = 0;
+//             state.error = 0;
+//             state.lastError = 0;
+//             state.pwmOutput = 0;
+//             motors.setMotorSpeed(i, 0);
+//             continue;
+//         }
+
+//         state.error = state.targetSpeed - state.currentSpeed;
+//         state.integral += state.error * dt;
+
+//         // Clamp the integral wind-up
+//         const float MAX_INTEGRAL = 30.0;
+//         state.integral = constrain(state.integral, -MAX_INTEGRAL, MAX_INTEGRAL);
+
+//         float derivative = (state.error - state.lastError) / dt;
+
+//         float output = Kp * state.error + Ki * state.integral + Kd * derivative;
+
+//         // Optional: use feedforward if you want (simple model)
+//         float feedforward = 0.2 * state.targetSpeed;
+//         output += feedforward;
+
+//         state.pwmOutput = constrain(output, -MAX_PWM, MAX_PWM);
+
+//         if (abs(state.pwmOutput) > 0 && abs(state.pwmOutput) < MIN_EFFECTIVE_PWM) {
+//             state.pwmOutput = (state.pwmOutput > 0) ? MIN_EFFECTIVE_PWM : -MIN_EFFECTIVE_PWM;
+//         }
+
+//         state.lastError = state.error;
+//         motors.setMotorSpeed(i, state.pwmOutput);
+//     }
+// }
+
+/*void MotorPIDController::update() {
     unsigned long now = millis();
 
     for (int i = 0; i < motorCount; i++) {
@@ -88,6 +150,7 @@ void MotorPIDController::update() {
 
         state.error = state.targetSpeed - state.currentSpeed;
         state.integral += state.error * dt;
+
         float derivative = (state.error - state.lastError) / dt;
 
         float output = Kp * state.error + Ki * state.integral + Kd * derivative;
@@ -101,4 +164,4 @@ void MotorPIDController::update() {
 
         motors.setMotorSpeed(i, state.pwmOutput);
     }
-}
+}*/

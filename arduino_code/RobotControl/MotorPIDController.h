@@ -35,6 +35,7 @@ private:
     float ticksPerMeter = 1000.0;  // default — will be set properly from MotionController
     static const uint8_t motorCount = 4;
     PIDState pidStates[motorCount];
+    unsigned long lastUpdateTime = 0;  // global update timestamp
 
     MotorController& motors;
     EncoderReader& encoders;
@@ -44,7 +45,7 @@ private:
     // const float Kd = 0.05;
 
     const float Kp = 1.0;
-    const float Ki = 0.01;
+    const float Ki = 0.02;
     const float Kd = 0.05;
 };
 

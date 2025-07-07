@@ -28,10 +28,11 @@ void MotorController::setMotorSpeed(uint8_t i, int speed) {
 
     static const int MIN_EFFECTIVE_PWM = 40;
     static const int KICKSTART_PWM = 120;
-    static const unsigned long KICKSTART_TIME_MS = 5;
+    static const unsigned long KICKSTART_TIME_MS = 10;
 
-    static unsigned long lastKickTime[4] = {0, 0, 0, 0};
-    static bool kicked[4] = {false, false, false, false};
+    static unsigned long lastKickTime[4] = {0};
+    static bool kicked[4] = {false};
+    static int lastSpeed[4] = {0};
 
     bool forward = speed >= 0;
     int absSpeed = abs(speed);
@@ -39,16 +40,20 @@ void MotorController::setMotorSpeed(uint8_t i, int speed) {
 
     unsigned long now = millis();
 
-    // Apply low outputs to all motor control pins on 0 speed
-    if (speed == 0 || speed == 0.0) {
+    if (speed == 0) {
         digitalWrite(motors[i].in1, LOW);
         digitalWrite(motors[i].in2, LOW);
-        digitalWrite(motors[i].en, LOW);
+        analogWrite(motors[i].en, 0);
+        kicked[i] = false;
+        lastSpeed[i] = 0;
         return;
     }
 
-    // Apply kickstart if speed is small and not already kicked
-    if (absSpeed > 0 && absSpeed < MIN_EFFECTIVE_PWM && !kicked[i]) {
+    // If we’re going from zero to small speed, apply kickstart
+    bool needsKick = (lastSpeed[i] == 0 && absSpeed < MIN_EFFECTIVE_PWM);
+    lastSpeed[i] = speed;
+
+    if (needsKick && !kicked[i]) {
         digitalWrite(motors[i].in1, forward ? HIGH : LOW);
         digitalWrite(motors[i].in2, forward ? LOW : HIGH);
         analogWrite(motors[i].en, KICKSTART_PWM);
@@ -57,13 +62,14 @@ void MotorController::setMotorSpeed(uint8_t i, int speed) {
         return;
     }
 
-    // Allow time for kickstart, then resume normal control
-    if (kicked[i] && now - lastKickTime[i] < KICKSTART_TIME_MS) {
-        return;  // Wait until kickstart time is over
+    // If still in kickstart period, keep applying kick PWM
+    if (kicked[i] && (now - lastKickTime[i] < KICKSTART_TIME_MS)) {
+        analogWrite(motors[i].en, KICKSTART_PWM);
+        return;
     }
 
-    // Kickstart complete or not needed — normal operation
     kicked[i] = false;
+
     digitalWrite(motors[i].in1, forward ? HIGH : LOW);
     digitalWrite(motors[i].in2, forward ? LOW : HIGH);
     analogWrite(motors[i].en, absSpeed);
