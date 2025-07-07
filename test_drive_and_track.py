@@ -1,6 +1,14 @@
 import asyncio
 from robot_ble_client import RobotBLEClient
 
+# Hardware constants
+WHEEL_RADIUS = 0.03  # 3cm
+WHEEL_BASE_LENGTH = 0.18  # 18cm
+WHEEL_BASE_WIDTH = 0.16   # 16cm
+TICKS_PER_REV = 360
+GEAR_RATIO = 1.0
+
+
 async def main():
     kinematics = MecanumKinematics(WHEEL_RADIUS, WHEEL_BASE_LENGTH, WHEEL_BASE_WIDTH, TICKS_PER_REV)
     tracker = OdometryTracker(kinematics)
