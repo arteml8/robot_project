@@ -34,6 +34,7 @@ class JetsonVelocityController:
 
     async def update(self):
         # Call this periodically (e.g., every 100ms)
+        # Compute control and send to robot
         actual = self.compute_actual_velocity()
         desired = self.target_velocity
 
@@ -43,3 +44,6 @@ class JetsonVelocityController:
         # (could scale or dampen based on error if needed)
         cmd = f"CMD:DRIVE:{desired[0]:.3f},{desired[1]:.3f},{desired[2]:.3f}\n"
         await self.ble.send(cmd)
+
+        # Query encoder right after command is sent
+        await self.ble.send("CMD:GET_ENCODERS\n")

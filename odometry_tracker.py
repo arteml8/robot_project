@@ -10,6 +10,9 @@ class OdometryTracker:
         self.theta = 0.0  # in radians
 
     def update_ticks(self, current_ticks):
+        if self.last_ticks == current_ticks:
+            return  # Avoid redundant updates
+
         if self.last_ticks is None:
             self.last_ticks = current_ticks
             return
