@@ -18,24 +18,26 @@ class MecanumKinematics:
             gear_ratio=GEAR_RATIO,
             unit=UNIT):
 
+        self.conversion = None
         # Convert inches to meters if needed
         if unit.lower() == 'in':
-            conversion = 0.0254  # 1 inch = 0.0254 meters
-            wheel_radius, wheel_base_length, wheel_base_width = [
-                x * conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
-            ]
+            self.conversion = 0.0254  # 1 inch = 0.0254 meters
+
         elif unit.lower() == 'm':
-            continue
+            self.conversion = 1
 
         else:
             raise ValueError("Wrong unit declared")
 
+        wheel_radius, wheel_base_length, wheel_base_width = [
+            x * conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
+        ]
         self.r = wheel_radius
         self.L = wheel_base_length
         self.W = wheel_base_width
         self.ticks_per_rev = ticks_per_rev
         self.gear_ratio = gear_ratio
-        
+
         # Distance per tick
         self.ticks_to_meters = (2 * math.pi * self.r) / (self.ticks_per_rev * self.gear_ratio)
 
