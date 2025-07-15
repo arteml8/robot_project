@@ -1,12 +1,37 @@
 import math
 
+# Hardware constants for the robot chassis
+WHEEL_RADIUS = 1.5         # 3in diameter
+WHEEL_BASE_LENGTH = 4.875  # 4 and 7/8 in center-to-center
+WHEEL_BASE_WIDTH = 4.875   # 4 and 7/8 in center-to-center
+TICKS_PER_REV = 46.0       # 23 apertures x 2 (since the encoder changes twice)
+GEAR_RATIO = 1.0           # Encoders on the output shaft, but allowing for a diff config
+UNIT = 'IN'                # Setting the units to inches, to make sure the init converts them to m
+
+
 class MecanumKinematics:
-    def __init__(self, wheel_radius, wheel_base_length, wheel_base_width, ticks_per_rev, gear_ratio=1.0):
-        self.r = wheel_radius  # in meters
-        self.L = wheel_base_length  # front-back
-        self.W = wheel_base_width   # left-right
-        self.ticks_per_rev = ticks_per_rev
-        self.gear_ratio = gear_ratio
+    def __init__(self, 
+            wheel_radius=WHEEL_RADIUS,
+            wheel_base_length=WHEEL_BASE_LENGTH,
+            wheel_base_width=WHEEL_BASE_WIDTH,
+            ticks_per_rev=TICKS_PER_REV,
+            gear_ratio=GEAR_RATIO,
+            unit=UNIT):
+
+        # Convert inches to meters if needed
+        if unit.lower() == 'in':
+            conversion = 0.0254  # 1 inch = 0.0254 meters
+            wheel_radius, wheel_base_length, wheel_base_width = [
+                x * conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
+            ]
+        elif unit.lower() == 'm':
+            self.r = wheel_radius
+            self.L = wheel_base_length
+            self.W = wheel_base_width
+            self.ticks_per_rev = ticks_per_rev
+            self.gear_ratio = gear_ratio
+        else:
+            raise ValueError("Wrong unit declared")
 
         # Distance per tick
         self.ticks_to_meters = (2 * math.pi * self.r) / (self.ticks_per_rev * self.gear_ratio)
