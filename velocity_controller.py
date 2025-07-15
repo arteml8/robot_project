@@ -2,7 +2,7 @@ import math
 import time
 
 class JetsonVelocityController:
-    def __init__(self, kinematics, tracker, ble_client, control_interval=0.1):
+    def __init__(self, kinematics, tracker, ble_client, control_interval=0.1, Kp=0.8):
         self.kinematics = kinematics
         self.tracker = tracker
         self.ble = ble_client
@@ -11,6 +11,7 @@ class JetsonVelocityController:
         self.last_time = time.time()
 
         self.target_velocity = (0.0, 0.0, 0.0)  # (vx, vy, omega)
+        self.Kp = Kp  # Simple proportional gain for feedback
 
     def set_target_velocity(self, vx, vy, omega):
         self.target_velocity = (vx, vy, omega)
@@ -33,17 +34,22 @@ class JetsonVelocityController:
         return (vx, vy, omega)
 
     async def update(self):
-        # Call this periodically (e.g., every 100ms)
-        # Compute control and send to robot
         actual = self.compute_actual_velocity()
         desired = self.target_velocity
-
         error = tuple(d - a for d, a in zip(desired, actual))
 
-        # For now, we’ll just pass through the desired values
-        # (could scale or dampen based on error if needed)
-        cmd = f"CMD:DRIVE:{desired[0]:.3f},{desired[1]:.3f},{desired[2]:.3f}\n"
-        await self.ble.send(cmd)
+        # --- Proportional control (simplified placeholder for future PID) ---
+        control_output = tuple(self.Kp * e for e in error)
 
-        # Query encoder right after command is sent
-        await self.ble.send("CMD:GET_ENCODERS\n")
+        vx_cmd = desired[0] + control_output[0]
+        vy_cmd = desired[1] + control_output[1]
+        omega_cmd = desired[2] + control_output[2]
+
+        # Clamp for safety
+        vx_cmd = max(min(vx_cmd, 0.5), -0.5)
+        vy_cmd = max(min(vy_cmd, 0.5), -0.5)
+        omega_cmd = max(min(omega_cmd, 1.0), -1.0)
+
+        # TODO: Replace with full PID later if necessary
+        cmd = f"CMD:DRIVE:{vx_cmd:.3f},{vy_cmd:.3f},{omega_cmd:.3f}\n"
+        await self.ble.send(cmd)
