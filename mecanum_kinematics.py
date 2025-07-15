@@ -30,7 +30,7 @@ class MecanumKinematics:
             raise ValueError("Wrong unit declared")
 
         wheel_radius, wheel_base_length, wheel_base_width = [
-            x * conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
+            x * self.conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
         ]
         self.r = wheel_radius
         self.L = wheel_base_length
