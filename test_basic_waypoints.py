@@ -9,7 +9,7 @@ waypoints = [
 ]
 
 
-def main():
+async def main():
 	planner = BasicWaypointPlanner(velocity_controller, tracker)
 	planner.load_waypoints(waypoints)
 
@@ -17,4 +17,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
