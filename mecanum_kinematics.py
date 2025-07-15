@@ -25,14 +25,17 @@ class MecanumKinematics:
                 x * conversion for x in (wheel_radius, wheel_base_length, wheel_base_width)
             ]
         elif unit.lower() == 'm':
-            self.r = wheel_radius
-            self.L = wheel_base_length
-            self.W = wheel_base_width
-            self.ticks_per_rev = ticks_per_rev
-            self.gear_ratio = gear_ratio
+            continue
+
         else:
             raise ValueError("Wrong unit declared")
 
+        self.r = wheel_radius
+        self.L = wheel_base_length
+        self.W = wheel_base_width
+        self.ticks_per_rev = ticks_per_rev
+        self.gear_ratio = gear_ratio
+        
         # Distance per tick
         self.ticks_to_meters = (2 * math.pi * self.r) / (self.ticks_per_rev * self.gear_ratio)
 
