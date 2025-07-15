@@ -22,10 +22,10 @@ async def main():
     tracker = OdometryTracker(kinematics)
     client = RobotBLEClient()
     controller = JetsonVelocityController(kinematics, tracker, client)
-	planner = BasicWaypointPlanner(velocity_controller, tracker)
-	planner.load_waypoints(waypoints)
+    planner = BasicWaypointPlanner(velocity_controller, tracker)
+    planner.load_waypoints(waypoints)
 
-	await planner.run()
+    await planner.run()
 
 
 if __name__ == "__main__":
