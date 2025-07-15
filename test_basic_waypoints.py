@@ -14,15 +14,13 @@ waypoints = [
     (0.0, 0.5, math.pi),  # Move back to left and rotate
 ]
 
-velocity_controller = JetsonVelocityController()
-
 
 async def main():
     kinematics = MecanumKinematics()
     tracker = OdometryTracker(kinematics)
     client = RobotBLEClient()
     controller = JetsonVelocityController(kinematics, tracker, client)
-    planner = BasicWaypointPlanner(velocity_controller, tracker)
+    planner = BasicWaypointPlanner(controller, tracker)
     planner.load_waypoints(waypoints)
 
     await planner.run()
