@@ -1,3 +1,4 @@
+import asyncio
 from basic_motion_planner import BasicWaypointPlanner
 
 # Example waypoints
@@ -7,7 +8,13 @@ waypoints = [
     (0.0, 0.5, math.pi),  # Move back to left and rotate
 ]
 
-planner = BasicWaypointPlanner(velocity_controller, tracker)
-planner.load_waypoints(waypoints)
 
-await planner.run()
+def main():
+	planner = BasicWaypointPlanner(velocity_controller, tracker)
+	planner.load_waypoints(waypoints)
+
+	await planner.run()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
