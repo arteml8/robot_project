@@ -5,7 +5,7 @@ from basic_motion_planner import BasicWaypointPlanner
 from robot_ble_client import RobotBLEClient
 from mecanum_kinematics import MecanumKinematics
 from odometry_tracker import OdometryTracker
-from jetson_velocity_controller import JetsonVelocityController  # Make sure this exists
+from velocity_controller import JetsonVelocityController
 
 async def main():
     # Initialize hardware interface
