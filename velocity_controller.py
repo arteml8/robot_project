@@ -52,4 +52,5 @@ class JetsonVelocityController:
 
         # TODO: Replace with full PID later if necessary
         cmd = f"CMD:DRIVE:{vx_cmd:.3f},{vy_cmd:.3f},{omega_cmd:.3f}\n"
+        print(cmd)
         await self.ble.send(cmd)
