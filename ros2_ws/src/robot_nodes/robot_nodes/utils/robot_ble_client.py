@@ -3,15 +3,15 @@ from bleak import BleakClient, BleakScanner
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 MAC = "64:E8:33:B7:71:56"
-TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"  # ESP32 → Jetson
-RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"  # Jetson → ESP32
+TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
 class RobotBLEClient:
     def __init__(self, device_name="RobotBridge"):
         self.device_name = device_name
         self.client = None
         self.tx_char = None
-        self.on_encoder_update = None  # callback to send to OdometryTracker
+        self.on_encoder_update = None
         self._write_lock = asyncio.Lock()
 
     async def connect(self):
@@ -26,11 +26,6 @@ class RobotBLEClient:
         print("❌ Device not found.")
         return False
 
-    async def poll_encoders(self, interval_ms=1000):
-        while self.client and self.client.is_connected:
-            await self.send("CMD:GET_ENCODERS\n")
-            await asyncio.sleep(interval_ms / 1000)
-
     async def _discover_services(self):
         for service in self.client.services:
             if UART_SERVICE_UUID in str(service.uuid):
@@ -41,24 +36,26 @@ class RobotBLEClient:
                         self.tx_char = char
 
     def _notification_handler(self, sender, data):
-        message = data.decode().strip()
-        print(f"🔄 Received: {message}")
-
+        message = data.decode(errors="ignore").strip()
         if message.startswith("ENC:"):
-            tick_strs = message.replace("ENC:", "").split(",")
-            if len(tick_strs) == 4:
-                try:
-                    tick_values = list(map(int, tick_strs))
-                    if self.on_encoder_update:
-                        self.on_encoder_update(tick_values)
-                except ValueError:
-                    print("⚠️ Invalid encoder data")
+            try:
+                tick_values = list(map(int, message[4:].split(",")))
+                if len(tick_values) == 4 and self.on_encoder_update:
+                    self.on_encoder_update(tick_values)
+            except ValueError:
+                print("⚠️ Invalid encoder data")
+
+    async def poll_encoders(self, interval_ms=200):
+        while self.client and self.client.is_connected:
+            await self.send("CMD:GET_ENCODERS\n")
+            await asyncio.sleep(interval_ms / 1000)
 
     async def send(self, command: str):
         if self.client and self.client.is_connected and self.tx_char:
             async with self._write_lock:
                 await self.client.write_gatt_char(self.tx_char, command.encode())
-                print(f"➡️ Sent: {command.strip()}")
+        else:
+            print("⚠️ BLE not connected; cannot send command.")
 
     async def disconnect(self):
         if self.client:
