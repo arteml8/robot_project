@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from robot_nodes.utils.jetson_velocity_controller import JetsonVelocityController
+from robot_nodes.utils.velocity_controller import JetsonVelocityController
 
 class VelocityControllerNode(Node):
     def __init__(self):
