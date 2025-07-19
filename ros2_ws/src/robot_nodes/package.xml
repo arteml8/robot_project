@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>robot_nodes</name>
+  <version>0.1.0</version>
+  <description>ROS 2 nodes for controlling a Self Driving House robot over BLE, velocity control, and planning.</description>
+  <maintainer email="alepilov@hotmail.com">Artem Lepilov</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <!-- Optional: add more as needed -->
+</package>
