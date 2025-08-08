@@ -1,5 +1,5 @@
 import math
-from mecanum_kinematics import MecanumKinematics
+from robot_nodes.utils.mecanum_kinematics import MecanumKinematics
 
 class OdometryTracker:
     def __init__(self, kinematics: MecanumKinematics):
