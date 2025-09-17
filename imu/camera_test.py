@@ -13,13 +13,13 @@ gst_pipeline = (
 cap = cv2.VideoCapture(gst_pipeline, cv2.CAP_GSTREAMER)
 
 if not cap.isOpened():
-    print("❌ Failed to open camera")
+    print("ERROR!! Failed to open camera")
     exit()
 
 while True:
     ret, frame = cap.read()
     if not ret:
-        print("❌ Empty frame")
+        print("WARNING! Empty frame")
         break
     cv2.imshow("CSI Camera", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
