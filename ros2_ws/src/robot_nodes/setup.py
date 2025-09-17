@@ -26,6 +26,7 @@ setup(
             'ble_node = robot_nodes.ble_node:main',
             'velocity_controller_node = robot_nodes.velocity_controller_node:main',
             'planner_node = robot_nodes.planner_node:main',
+            'drive_distance_node = robot_nodes.drive_distance_node:main',
             'odometry_node = robot_nodes.odometry_node:main'
         ],
     },
