@@ -39,6 +39,8 @@ class CameraNode(Node):
 
         # Convert OpenCV BGR frame to ROS2 Image
         msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = "camera1"
         self.publisher_.publish(msg)
 
     def destroy_node(self):
