@@ -38,8 +38,8 @@ class CameraNode(Node):
             return
 
         # Convert OpenCV BGR frame to ROS2 Image
-        # msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
-        msg = self.bridge.cv2_to_imgmsg(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), encoding="rgb8")
+        msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+        # msg = self.bridge.cv2_to_imgmsg(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), encoding="rgb8") 
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = "camera1"
         self.publisher_.publish(msg)
